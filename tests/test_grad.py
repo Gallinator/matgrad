@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 import torch
 from torch import tensor, Tensor
-
 import autodiff.functions as af
+from autodiff.functions import dropout, masked_fill
 from autodiff.grad_functions import broadcast_grad
 from autodiff.variable import Variable
 
@@ -370,3 +370,29 @@ class TestGradFunctions(TestGradBase):
         torch.mean(self.s_t).backward()
 
         assert_grad_equal(self.s_t, self.s)
+
+    def test_dropout_zero(self):
+        dropout(self.a, 0.0, True).backward()
+        torch.dropout(self.a_t, 0.0, True).sum().backward()
+
+        assert_grad_close(self.a_t, self.a, 1e-15)
+
+    def test_dropout_one(self):
+        dropout(self.a, 1.0, True).backward()
+        torch.dropout(self.a_t, 1.0, True).sum().backward()
+
+        assert_grad_close(self.a_t, self.a, 1e-15)
+
+    def test_dropout_no_train(self):
+        dropout(self.a, 1.0, False).backward()
+        torch.dropout(self.a_t, 1.0, False).sum().backward()
+
+        assert_grad_close(self.a_t, self.a, 1e-15)
+
+    def test_masked_fill(self):
+        mask = np.array([[False, True],
+                         [True, False]])
+        masked_fill(self.a, mask, 100).backward()
+        torch.masked_fill(self.a_t, tensor(mask), 100).sum().backward()
+
+        assert_grad_close(self.a_t, self.a, 1e-15)

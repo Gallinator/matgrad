@@ -2,7 +2,7 @@ import sys
 
 import numpy as np
 from autodiff.grad_functions import Reshape, Concatenate, Stack, Sin, Sigmoid, Log, Sum, ReLU, Conv2d, _conv2d_f, Exp, \
-    Mean, Cos, Sqrt
+    Mean, Cos, Sqrt, Mask
 from autodiff.variable import Variable, any_requires_grad
 
 
@@ -23,8 +23,10 @@ def stack(values, dim):
 def sin(v: Variable):
     return Variable(np.sin(v.value), Sin(v), v.requires_grad)
 
+
 def cos(v: Variable):
     return Variable(np.cos(v.value), Cos(v), v.requires_grad)
+
 
 def sigmoid(v: Variable):
     return Variable(1 / (1 + np.exp(-v.value)), Sigmoid(v), v.requires_grad)
@@ -61,3 +63,17 @@ def mean(v: Variable):
 
 def conv2d(v: Variable, k: Variable):
     return Variable(_conv2d_f(v.value, k.value), Conv2d(v, k), any_requires_grad(v, k))
+
+
+def dropout(v: Variable, p: float, training: bool):
+    if training:
+        mask = np.random.choice([True, False], size=v.shape, p=[1 - p, p])
+        return Variable(v.value * mask / (1 - p), Mask(v, mask), v.requires_grad)
+    else:
+        return v
+
+
+def masked_fill(v: Variable, mask, fill: float):
+    masked = v.value
+    masked[~mask] = fill
+    return Variable(masked, Mask(v, ~mask), v.requires_grad)
