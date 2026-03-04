@@ -260,6 +260,13 @@ class TestGradFunctions(TestGradBase):
 
         assert_grad_equal(self.a_t, self.a)
 
+    def test_cos(self):
+        af.cos(self.a).backward()
+        torch.cos(self.a_t).sum().backward()
+
+        assert_grad_equal(self.a_t, self.a)
+
+
     def test_sigmoid(self):
         af.sigmoid(self.a).backward()
         torch.sigmoid(self.a_t).sum().backward()
