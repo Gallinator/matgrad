@@ -266,7 +266,6 @@ class TestGradFunctions(TestGradBase):
 
         assert_grad_equal(self.a_t, self.a)
 
-
     def test_sigmoid(self):
         af.sigmoid(self.a).backward()
         torch.sigmoid(self.a_t).sum().backward()
@@ -307,6 +306,12 @@ class TestGradFunctions(TestGradBase):
     def test_exp(self):
         af.exp(self.a).backward()
         torch.exp(self.a_t).sum().backward()
+
+        assert_grad_equal(self.a_t, self.a)
+
+    def test_sqrt(self):
+        af.sqrt(self.a).backward()
+        torch.sqrt(self.a_t).sum().backward()
 
         assert_grad_equal(self.a_t, self.a)
 

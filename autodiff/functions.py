@@ -2,7 +2,7 @@ import sys
 
 import numpy as np
 from autodiff.grad_functions import Reshape, Concatenate, Stack, Sin, Sigmoid, Log, Sum, ReLU, Conv2d, _conv2d_f, Exp, \
-    Mean, Cos
+    Mean, Cos, Sqrt
 from autodiff.variable import Variable, any_requires_grad
 
 
@@ -44,6 +44,10 @@ def relu(v: Variable):
 
 def exp(v: Variable):
     return Variable(np.exp(v.value), Exp(v), v.requires_grad)
+
+
+def sqrt(v: Variable):
+    return Variable(np.sqrt(v.value), Sqrt(v), v.requires_grad)
 
 
 def softmax(v: Variable, dim):

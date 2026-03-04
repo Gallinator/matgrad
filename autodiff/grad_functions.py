@@ -224,6 +224,11 @@ class Exp(Operator):
         self.v.backward(seed * np.exp(self.v.value))
 
 
+class Sqrt(Operator):
+    def backward(self, seed):
+        self.v.backward(seed / (2 * np.sqrt(self.v)) )
+
+
 class Mean(Operator):
     def backward(self, seed):
         grad = np.ones_like(self.v) * 1 / self.v.value.size
