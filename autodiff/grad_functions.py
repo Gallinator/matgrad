@@ -68,9 +68,6 @@ class Mult(BinaryOperator):
 
 
 class Sin(Operator):
-    def __init__(self, v):
-        super().__init__(v)
-
     def backward(self, seed):
         self.v.backward(seed * np.cos(self.v.value))
 
