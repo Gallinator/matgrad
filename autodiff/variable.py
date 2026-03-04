@@ -120,25 +120,6 @@ def transpose(a: Variable):
 def getitem(a: Variable, item):
     return Variable(a.value[item], Index(a, item), a.requires_grad)
 
-# x = Variable(np.random.rand(1, 10, 10), requires_grad=True)
-# k = Variable(np.random.rand(2, 1, 8, 8), requires_grad=True)
-# k1 = Variable(np.random.rand(1, 2, 3, 3), requires_grad=True)
-# # print(x)
-# w = conv2d(x, k)
-# w = conv2d(w, k1)
-# # print(w)
-#
-# w.backward()
-# print(x.grad)
-#
-# x = torch.tensor(x.value, requires_grad=True, dtype=torch.float)
-# k = torch.tensor(k.value, requires_grad=True, dtype=torch.float)
-# k1 = torch.tensor(k1.value, requires_grad=True, dtype=torch.float)
-#
-# # print(x)
-# w = torch.nn.functional.conv2d(x, k)
-# w = torch.nn.functional.conv2d(w, k1)
-# # print(w)
-#
-# w.sum().backward(retain_graph=True)
-# print(x.grad)
+
+def ones_like(v: Variable) -> Variable:
+    return Variable(np.ones_like(v.value), v.requires_grad)
