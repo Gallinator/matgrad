@@ -123,3 +123,7 @@ def getitem(a: Variable, item):
 
 def ones_like(v: Variable) -> Variable:
     return Variable(np.ones_like(v.value), v.requires_grad)
+
+
+def zeros_like(v: Variable) -> Variable:
+    return Variable(np.zeros_like(v.value), v.requires_grad)
