@@ -359,6 +359,18 @@ class TestGradFunctions(TestGradBase):
 
         assert_grad_equal(self.a_t, self.a)
 
+    def test_mean_mat_dim0(self):
+        af.mean(self.a, dim=0).backward()
+        torch.mean(self.a_t, dim=0, keepdim=True).sum().backward()
+
+        assert_grad_equal(self.a_t, self.a)
+
+    def test_mean_mat_dim1(self):
+        af.mean(self.a, dim=1).backward()
+        torch.mean(self.a_t, dim=1, keepdim=True).sum().backward()
+
+        assert_grad_equal(self.a_t, self.a)
+
     def test_mean_vec(self):
         af.mean(self.v).backward()
         torch.mean(self.v_t).backward()

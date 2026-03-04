@@ -57,8 +57,8 @@ def softmax(v: Variable, dim):
     return e / sum(e, dim, keepdims=True)
 
 
-def mean(v: Variable):
-    return Variable(np.mean(v, keepdims=True), Mean(v), v.requires_grad)
+def mean(v: Variable, dim=None):
+    return Variable(np.mean(v, axis=dim, keepdims=True), Mean(v, dim), v.requires_grad)
 
 
 def conv2d(v: Variable, k: Variable):

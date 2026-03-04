@@ -230,8 +230,13 @@ class Sqrt(Operator):
 
 
 class Mean(Operator):
+    def __init__(self, v, dim):
+        super().__init__(v)
+        self.dim = dim
+
     def backward(self, seed):
-        grad = np.ones_like(self.v) * 1 / self.v.value.size
+        n = self.v.shape[self.dim] if self.dim is not None else self.v.value.size
+        grad = np.ones_like(self.v) / n
         self.v.backward(seed * grad)
 
 
