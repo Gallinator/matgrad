@@ -75,6 +75,11 @@ class Sin(Operator):
         self.v.backward(seed * np.cos(self.v.value))
 
 
+class Cos(Operator):
+    def backward(self, seed):
+        self.v.backward(seed * -np.sin(self.v.value))
+
+
 class MatMul(Operator):
     def __init__(self, v, v1):
         super().__init__(v)

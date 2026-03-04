@@ -2,7 +2,7 @@ import sys
 
 import numpy as np
 from autodiff.grad_functions import Reshape, Concatenate, Stack, Sin, Sigmoid, Log, Sum, ReLU, Conv2d, _conv2d_f, Exp, \
-    Mean
+    Mean, Cos
 from autodiff.variable import Variable, any_requires_grad
 
 
@@ -23,6 +23,8 @@ def stack(values, dim):
 def sin(v: Variable):
     return Variable(np.sin(v.value), Sin(v), v.requires_grad)
 
+def cos(v: Variable):
+    return Variable(np.cos(v.value), Cos(v), v.requires_grad)
 
 def sigmoid(v: Variable):
     return Variable(1 / (1 + np.exp(-v.value)), Sigmoid(v), v.requires_grad)
