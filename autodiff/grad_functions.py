@@ -220,3 +220,9 @@ class ReLU(Operator):
 class Exp(Operator):
     def backward(self, seed):
         self.v.backward(seed * np.exp(self.v.value))
+
+
+class Mean(Operator):
+    def backward(self, seed):
+        grad = np.ones_like(self.v) * 1 / self.v.value.size
+        self.v.backward(seed * grad)

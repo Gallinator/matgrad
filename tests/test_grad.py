@@ -340,3 +340,21 @@ class TestGradFunctions(TestGradBase):
 
         assert_grad_close(img_t, img, 1e-15)
         assert_grad_close(k_t, k, 1e-15)
+
+    def test_mean_mat(self):
+        af.mean(self.a).backward()
+        torch.mean(self.a_t).backward()
+
+        assert_grad_equal(self.a_t, self.a)
+
+    def test_mean_vec(self):
+        af.mean(self.v).backward()
+        torch.mean(self.v_t).backward()
+
+        assert_grad_equal(self.v_t, self.v)
+
+    def test_mean_scalar(self):
+        af.mean(self.s).backward()
+        torch.mean(self.s_t).backward()
+
+        assert_grad_equal(self.s_t, self.s)

@@ -1,7 +1,8 @@
 import sys
 
 import numpy as np
-from autodiff.grad_functions import Reshape, Concatenate, Stack, Sin, Sigmoid, Log, Sum, ReLU, Conv2d, _conv2d_f, Exp
+from autodiff.grad_functions import Reshape, Concatenate, Stack, Sin, Sigmoid, Log, Sum, ReLU, Conv2d, _conv2d_f, Exp, \
+    Mean
 from autodiff.variable import Variable, any_requires_grad
 
 
@@ -46,6 +47,10 @@ def exp(v: Variable):
 def softmax(v: Variable, dim):
     e = exp(v)
     return e / sum(e, dim, keepdims=True)
+
+
+def mean(v: Variable):
+    return Variable(np.mean(v, keepdims=True), Mean(v), v.requires_grad)
 
 
 def conv2d(v: Variable, k: Variable):
