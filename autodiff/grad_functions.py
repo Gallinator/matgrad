@@ -3,6 +3,14 @@ from abc import abstractmethod
 import numpy as np
 
 
+def unbatch_grad(v, grad):
+    # Batch dimensions
+    if len(grad.shape) > len(v.shape):
+        sum_dims = len(grad.shape) - len(v.shape)
+        grad = np.sum(grad, axis=tuple(range(sum_dims)))
+    return grad
+
+
 def broadcast_grad(grad, v):
     if grad.shape != v.shape:
         dims = [i for i, (d1, d2) in enumerate(zip(grad.shape, v.shape)) if d1 != d2]
