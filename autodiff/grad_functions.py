@@ -13,6 +13,7 @@ def unbatch_grad(v, grad):
 
 def broadcast_grad(grad, v):
     if grad.shape != v.shape:
+        grad = unbatch_grad(v, grad)
         dims = [i for i, (d1, d2) in enumerate(zip(grad.shape, v.shape)) if d1 != d2]
         return np.sum(grad, axis=tuple(dims), keepdims=True)
     else:
