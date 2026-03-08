@@ -104,8 +104,7 @@ class Index(Operator):
 
     def backward(self, seed):
         new_seed = np.zeros_like(self.v.value)
-        # print(f'{seed.shape} {new_seed.shape} {self.index}')
-        new_seed[self.index] = seed
+        np.add.at(new_seed, self.index, seed)
         self.v.backward(new_seed)
 
 
