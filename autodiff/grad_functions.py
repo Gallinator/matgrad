@@ -77,14 +77,11 @@ class Cos(Operator):
         self.v.backward(seed * -np.sin(self.v.value))
 
 
-class MatMul(Operator):
-    def __init__(self, v, v1):
-        super().__init__(v)
-        self.v1 = v1
-
-    def backward(self, seed):
-        self.v.backward(seed @ self.v1.value.T)
-        self.v1.backward(self.v.value.T @ seed)
+class MatMul(BinaryOperator):
+    def _backward(self, seed):
+        v_grad = seed @ np.swapaxes(self.v1.value, -1, -2)
+        v1_grad = np.swapaxes(self.v.value, -1, -2) @ seed
+        return v_grad, v1_grad
 
 
 class Divide(BinaryOperator):
