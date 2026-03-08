@@ -53,7 +53,8 @@ def sqrt(v: Variable):
 
 
 def softmax(v: Variable, dim):
-    e = exp(v)
+    v_max = Variable(np.max(v.value, dim, keepdims=True))
+    e = exp(v - v_max)
     return e / sum(e, dim, keepdims=True)
 
 
