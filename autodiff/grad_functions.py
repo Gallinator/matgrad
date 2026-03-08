@@ -184,7 +184,6 @@ class Conv2d(Operator):
         return (int(pad_x), int(pad_x)), (int(pad_y), int(pad_y))
 
     def backward(self, seed):
-        # print(f'S:{seed.shape} K: {self.k.shape} X: {self.v.shape}')
         grad_k = []
         # For each output channel, convolve with all input channels
         for s in seed:
