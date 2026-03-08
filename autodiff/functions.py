@@ -69,7 +69,10 @@ def conv2d(v: Variable, k: Variable):
 def dropout(v: Variable, p: float, training: bool):
     if training:
         mask = np.random.choice([True, False], size=v.shape, p=[1 - p, p])
-        return Variable(v.value * mask / (1 - p), Mask(v, mask), v.requires_grad)
+        if p == 1:  # Return all zeros since all outputs are dropped
+            return Variable(mask, Mask(v, mask), v.requires_grad)
+        else:
+            return Variable(v.value * mask / (1 - p), Mask(v, mask), v.requires_grad)
     else:
         return v
 
