@@ -15,7 +15,7 @@ def bce_loss(input_proba: Variable, target: Variable):
 
 
 def cross_entropy(input_logits: Variable, target: Variable):
-    p = softmax(input_logits, dim=1)
-    c = input_logits.shape[0]
-    y = Variable(np.eye(c)[target].T)
-    return -mean(sum(y * log(p), dim=0))
+    p = softmax(input_logits, dim=-2)
+    c = input_logits.shape[-2]
+    y = Variable(np.swapaxes(np.eye(c)[target.value], -1, -2))
+    return -mean(sum(y * log(p), dim=-2))
