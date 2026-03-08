@@ -113,8 +113,12 @@ def neg(a: Variable):
     return Variable(-a.value, Negative(a), a.requires_grad)
 
 
-def transpose(a: Variable):
-    return Variable(a.value.T, Transpose(a), a.requires_grad)
+def transpose(a: Variable, *dims):
+    if dims:
+        y = np.swapaxes(a.value, *dims)
+    else:
+        y = np.transpose(a.value)
+    return Variable(y, Transpose(a, *dims), a.requires_grad)
 
 
 def getitem(a: Variable, item):
