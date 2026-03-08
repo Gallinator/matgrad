@@ -110,7 +110,7 @@ class Index(Operator):
 
 
 class Concatenate:
-    def __init__(self, dim, *values):
+    def __init__(self, dim, values):
         self.dim = dim
         self.values = values
 
@@ -122,7 +122,7 @@ class Concatenate:
 
 
 class Stack:
-    def __init__(self, dim, *values):
+    def __init__(self, dim, values):
         self.dim = dim
         self.values = values
 

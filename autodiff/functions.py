@@ -11,12 +11,12 @@ def reshape(v: Variable, shape):
 
 
 def cat(values, dim):
-    return Variable(np.concatenate([v.value for v in values], axis=dim), Concatenate(dim, *values),
+    return Variable(np.concatenate([v.value for v in values], axis=dim), Concatenate(dim, values),
                     any_requires_grad(*values))
 
 
 def stack(values, dim):
-    return Variable(np.stack([v.value for v in values], axis=dim), Stack(dim, *values),
+    return Variable(np.stack([v.value for v in values], axis=dim), Stack(dim, values),
                     any_requires_grad(*values))
 
 
