@@ -93,8 +93,15 @@ class Divide(BinaryOperator):
 
 
 class Transpose(Operator):
+    def __init__(self, v, *dims):
+        super().__init__(v)
+        self.dims = dims
+
     def backward(self, seed):
-        self.v.backward(seed.T)
+        if self.dims:
+            self.v.backward(np.swapaxes(seed, *self.dims))
+        else:
+            self.v.backward(np.transpose(seed))
 
 
 class Index(Operator):
