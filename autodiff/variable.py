@@ -127,3 +127,11 @@ def ones_like(v: Variable) -> Variable:
 
 def zeros_like(v: Variable) -> Variable:
     return Variable(np.zeros_like(v.value), v.requires_grad)
+
+
+def random(*shape, requires_grad=True):
+    return Variable(np.random.rand(*shape), requires_grad=requires_grad)
+
+
+def randint(l, h, shape, requires_grad=True):
+    return Variable(np.random.randint(l, h, shape), requires_grad=requires_grad)
