@@ -226,7 +226,7 @@ class Exp(Operator):
 
 class Sqrt(Operator):
     def backward(self, seed):
-        self.v.backward(seed / (2 * np.sqrt(self.v)))
+        self.v.backward(seed / (2 * np.sqrt(self.v.value)))
 
 
 class Mean(Operator):
