@@ -77,7 +77,8 @@ def dropout(v: Variable, p: float, training: bool):
         return v
 
 
-def masked_fill(v: Variable, mask, fill: float):
+def masked_fill(v: Variable, mask: np.ndarray, fill: float):
     masked = v.value
-    masked[~mask] = fill
+    masked[mask] = fill
+    # Invert mask as when mask==True the gradient is blocked
     return Variable(masked, Mask(v, ~mask), v.requires_grad)
