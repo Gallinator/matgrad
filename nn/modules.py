@@ -3,27 +3,21 @@ from math import sqrt
 from typing import Optional, override
 
 import numpy as np
-import torch
-from torch.nn import init
-
 from autodiff.functions import conv2d, relu, layer_norm, masked_fill, softmax, reshape
 from autodiff.variable import Variable, transpose
 
 
-def init_kaiming_uniform(weight, bias):
-    w = torch.empty(weight, dtype=torch.float)
-    b = torch.empty(bias, dtype=torch.float)
-    init.kaiming_uniform_(w, a=math.sqrt(5))
-    fan_in, _ = init._calculate_fan_in_and_fan_out(w)
-    bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
-    init.uniform_(b, -bound, bound)
-    return (Variable(w.numpy(force=True), requires_grad=True),
-            Variable(b.numpy(force=True), requires_grad=True))
+def _calculate_fan_in_fan_out(shape) -> tuple[int, int]:
+    in_size, out_size = shape[1], shape[0]
+    receptive_field = math.prod(shape[2:])
+    return in_size * receptive_field, out_size * receptive_field
 
 
 def xavier_init(*dim) -> Variable:
-    w = torch.empty(dim, dtype=torch.float)
-    return Variable(init.xavier_uniform_(w).numpy(force=True), requires_grad=True)
+    fan_in, fan_out = _calculate_fan_in_fan_out(dim)
+    std = math.sqrt(2.0 / float(fan_in + fan_out))
+    a = math.sqrt(3.0) * std  # Calculate uniform bounds from standard deviation
+    return Variable(np.random.uniform(-a, a, dim), requires_grad=True)
 
 
 def kaiming_init(size):
@@ -32,8 +26,7 @@ def kaiming_init(size):
 
 
 def normal_init(size):
-    w = torch.empty(size, dtype=torch.float)
-    return Variable(init.normal_(w).numpy(force=True), requires_grad=True)
+    return Variable(np.random.normal(size=size), requires_grad=True)
 
 
 def attention(q: Variable, k: Variable, v: Variable, mask=None) -> Variable:
