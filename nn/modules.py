@@ -40,7 +40,7 @@ def attention(q: Variable, k: Variable, v: Variable, mask=None) -> Variable:
     d_k = Variable(np.array(sqrt(q.shape[-1])))
     y = q @ transpose(k, -2, -1) / d_k
     if mask is not None:
-        y = masked_fill(y, mask, -1)
+        y = masked_fill(y, mask, -10000)
     y = softmax(y, dim=-1)
     return y @ v
 
