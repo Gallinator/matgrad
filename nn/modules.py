@@ -120,7 +120,17 @@ class ReLU(Module):
 class Linear(Module):
     def __init__(self, in_features, out_features):
         super().__init__()
-        self.w, self.b = init_kaiming_uniform((out_features, in_features), (out_features,))
+        self.w, self.b = self.initi_params((out_features, in_features), (out_features,))
+
+    def initi_params(self, weight_shape, bias_shape):
+        fan_in, _ = _calculate_fan_in_fan_out(weight_shape)
+        gain = 2 / (1 + 5)
+        w = Variable(sqrt(gain * 3 / fan_in) * np.ones(weight_shape), requires_grad=True)
+
+        bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+        b = Variable(np.random.uniform(-bound, bound, bias_shape), requires_grad=True)
+
+        return w, b
 
     def forward(self, x) -> Variable:
         y = x @ self.w.T + self.b
