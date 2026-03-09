@@ -74,8 +74,8 @@ class Module():
 class LayerNorm(Module):
     def __init__(self, normalized_shape):
         super().__init__()
-        self.w = kaiming_init(normalized_shape)
-        self.b = kaiming_init(normalized_shape)
+        self.w = Variable(np.ones(normalized_shape), requires_grad=True)
+        self.b = Variable(np.zeros(normalized_shape), requires_grad=True)
 
     def forward(self, v):
         return layer_norm(v, self.w, self.b)
