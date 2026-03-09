@@ -82,3 +82,11 @@ def masked_fill(v: Variable, mask: np.ndarray, fill: float):
     masked[mask] = fill
     # Invert mask as when mask==True the gradient is blocked
     return Variable(masked, Mask(v, ~mask), v.requires_grad)
+
+
+def layer_norm(v: Variable, w: Variable, b: Variable):
+    mu = mean(v, dim=-1)
+    std_v = v - mu
+    var = mean(std_v ** 2, dim=-1)
+    eps = Variable(np.array([[1e-5]]))
+    return std_v / sqrt(var + eps) * w + b
