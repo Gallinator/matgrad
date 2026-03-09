@@ -1,5 +1,4 @@
 import math
-
 import torch
 from torch import nn, Tensor
 from torch.nn import init, Parameter
@@ -65,7 +64,7 @@ class TorchMultiHeadAttention(nn.Module):
         k = k.transpose(-2, -1).reshape((batch_size, self.n_heads, n_samples, self.embed_dim // self.n_heads))
         v = v.transpose(-2, -1).reshape((batch_size, self.n_heads, n_samples, self.embed_dim // self.n_heads))
 
-        attn_out = self.attention(q, k, v, mask)
+        attn_out = attention(q, k, v, mask)
 
         # Concatenate
         attn_out = attn_out.transpose(-3, -2).reshape((batch_size, n_samples, self.embed_dim))
