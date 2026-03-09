@@ -20,27 +20,46 @@ def broadcast_grad(grad, v):
         return grad
 
 
-class Operator:
-    def __init__(self, v):
-        self.v = v
+class Operator():
+    def __init__(self, *inputs):
+        self.inputs = inputs
 
     @abstractmethod
+    def backward(self, seed): ...
+
+
+class UnaryOperator(Operator):
+    def __init__(self, input):
+        super().__init__()
+        self.inputs = [input]
+
+    @property
+    def v(self):
+        return self.inputs[0]
+
+    @abstractmethod
+    def _backward(self, seed): ...
+
     def backward(self, seed):
-        return NotImplemented()
+        self.v.accumulate(self._backward(seed))
 
 
 class BinaryOperator(Operator):
-    def __init__(self, v, v1):
-        super().__init__(v)
-        self.v1 = v1
+    @property
+    def v(self):
+        return self.inputs[0]
+
+    @property
+    def v1(self):
+        return self.inputs[1]
 
     @abstractmethod
     def _backward(self, seed): ...
 
     def backward(self, seed):
         v_grad, v1_grad = self._backward(seed)
-        self.v.backward(broadcast_grad(v_grad, self.v))
-        self.v1.backward(broadcast_grad(v1_grad, self.v1))
+        self.v.accumulate(broadcast_grad(v_grad, self.v))
+        self.v1.accumulate(broadcast_grad(v1_grad, self.v1))
 
 
 class Add(BinaryOperator):
@@ -53,22 +72,22 @@ class Sub(BinaryOperator):
         return seed, -seed
 
 
-class Negative(Operator):
-    def backward(self, seed):
-        self.v.backward(-seed)
+class Negative(UnaryOperator):
+    def _backward(self, seed):
+        return -seed
 
 
-class Power(Operator):
-    def __init__(self, v, power):
-        super().__init__(v)
+class Power(UnaryOperator):
+    def __init__(self, input, power):
+        super().__init__(input)
         self.power = power
 
-    def backward(self, seed):
+    def _backward(self, seed):
         if self.power == 0:
             grad = np.zeros_like(self.v)
         else:
             grad = self.power * self.v.value ** (self.power - 1)
-        self.v.backward(seed * grad)
+        return seed * grad
 
 
 class Mult(BinaryOperator):
@@ -76,14 +95,14 @@ class Mult(BinaryOperator):
         return seed * self.v1.value, seed * self.v.value
 
 
-class Sin(Operator):
-    def backward(self, seed):
-        self.v.backward(seed * np.cos(self.v.value))
+class Sin(UnaryOperator):
+    def _backward(self, seed):
+        return seed * np.cos(self.v.value)
 
 
-class Cos(Operator):
-    def backward(self, seed):
-        self.v.backward(seed * -np.sin(self.v.value))
+class Cos(UnaryOperator):
+    def _backward(self, seed):
+        return seed * -np.sin(self.v.value)
 
 
 class MatMul(BinaryOperator):
@@ -98,76 +117,75 @@ class Divide(BinaryOperator):
         return seed / self.v1.value, seed * -self.v.value / self.v1.value ** 2
 
 
-class Transpose(Operator):
+class Transpose(UnaryOperator):
     def __init__(self, v, *dims):
         super().__init__(v)
         self.dims = dims
 
-    def backward(self, seed):
+    def _backward(self, seed):
         if self.dims:
-            self.v.backward(np.swapaxes(seed, *self.dims))
+            return np.swapaxes(seed, *self.dims)
         else:
-            self.v.backward(np.transpose(seed))
+            return np.transpose(seed)
 
 
-class Index(Operator):
+class Index(UnaryOperator):
     def __init__(self, v, index):
         super().__init__(v)
         self.index = index
 
-    def backward(self, seed):
+    def _backward(self, seed):
         new_seed = np.zeros_like(self.v.value)
         np.add.at(new_seed, self.index, seed)
-        self.v.backward(new_seed)
+        return new_seed
 
 
-class Concatenate:
+class Concatenate(Operator):
     def __init__(self, dim, values):
+        super().__init__(*values)
         self.dim = dim
-        self.values = values
 
     def backward(self, seed):
-        sections = np.cumsum([v.shape[self.dim] for v in self.values])[:-1]
+        sections = np.cumsum([v.shape[self.dim] for v in self.inputs])[:-1]
         split_seed = np.split(seed, axis=self.dim, indices_or_sections=sections)
-        for s, v in zip(split_seed, self.values):
-            v.backward(s)
+        for s, v in zip(split_seed, self.inputs):
+            v.accumulate(s)
 
 
-class Stack:
-    def __init__(self, dim, values):
+class Stack(Operator):
+    def __init__(self, dim, inputs):
+        super().__init__(*inputs)
         self.dim = dim
-        self.values = values
 
     def backward(self, seed):
         unstacked_seed = np.unstack(seed, axis=self.dim)
-        for v, s in zip(self.values, unstacked_seed):
-            v.backward(s)
+        for v, s in zip(self.inputs, unstacked_seed):
+            v.accumulate(s)
 
 
-class Reshape(Operator):
-    def backward(self, seed):
-        self.v.backward(np.reshape(seed, self.v.value.shape))
+class Reshape(UnaryOperator):
+    def _backward(self, seed):
+        return np.reshape(seed, self.v.value.shape)
 
 
-class Sum(Operator):
+class Sum(UnaryOperator):
     def __init__(self, v, dim, keepdims):
         super().__init__(v)
         self.dim = dim
         self.keepdims = keepdims
 
-    def backward(self, seed):
+    def _backward(self, seed):
         if self.dim is None or self.keepdims:
-            grad = seed * np.ones_like(self.v.value)
+            return seed * np.ones_like(self.v.value)
         else:
-            grad = np.repeat(np.expand_dims(seed, self.dim), self.v.shape[self.dim], self.dim)
-        self.v.backward(grad)
+            return np.repeat(np.expand_dims(seed, self.dim), self.v.shape[self.dim], self.dim)
 
 
-class Sigmoid(Operator):
-    def backward(self, seed):
+class Sigmoid(UnaryOperator):
+    def _backward(self, seed):
         y = 1 / (1 + np.exp(-self.v.value))
         y *= (1 - y)
-        self.v.backward(seed * y)
+        return seed * y
 
 
 def _conv2d_f(x: np.ndarray, kernels: np.ndarray):
@@ -183,30 +201,27 @@ def _conv2d_f(x: np.ndarray, kernels: np.ndarray):
     return result.reshape(kernels.shape[0], out_x_size, out_y_size)
 
 
-class Conv2d(Operator):
-    def __init__(self, v, k):
-        super().__init__(v)
-        self.k = k
+class Conv2d(BinaryOperator):
 
     def get_seed_padding(self, seed):
-        k_size = np.array(np.flip(self.k).shape[-2:])
+        k_size = np.array(np.flip(self.v1).shape[-2:])
         s_size = np.array(seed.shape)[-2:]
         v_shape = np.array(self.v.shape)[-2:]
         pad_x, pad_y = (k_size + v_shape - s_size) / 2
         return (int(pad_x), int(pad_x)), (int(pad_y), int(pad_y))
 
-    def backward(self, seed):
+    def _backward(self, seed):
         grad_k = []
         # For each output channel, convolve with all input channels
         for s in seed:
             for x in self.v.value:
                 grad_k.append(_conv2d_f(np.expand_dims(x, [0, 1]),
                                         np.expand_dims(s, [0, 1])))
-        self.k.backward(np.array(grad_k).squeeze().reshape(self.k.shape))
+        v1_grad = np.array(grad_k).squeeze().reshape(self.v1.shape)
 
         grad_c = [[] for _ in range(self.v.shape[0])]
         # For each pair of output and kernel, get the derivatives of each channel
-        for s, k in zip(seed, self.k.value):
+        for s, k in zip(seed, self.v1.value):
             for i, k_c in enumerate(k):
                 k_c = np.flip(k_c)
                 padded_seed = np.pad(s, self.get_seed_padding(s))
@@ -215,46 +230,47 @@ class Conv2d(Operator):
         # Sum the derivatives channel wise
         grad_x = np.sum(np.array(grad_c), 1)
         grad_x = np.squeeze(grad_x)
-        self.v.backward(np.array(grad_x, ndmin=len(self.v.shape)))
+        v_grad = np.array(grad_x, ndmin=len(self.v.shape))
+        return v_grad, v1_grad
 
 
-class Log(Operator):
-    def backward(self, seed):
-        self.v.backward(seed / (self.v.value + sys.float_info.epsilon))
+class Log(UnaryOperator):
+    def _backward(self, seed):
+        return seed / (self.v.value + sys.float_info.epsilon)
 
 
-class ReLU(Operator):
-    def backward(self, seed):
+class ReLU(UnaryOperator):
+    def _backward(self, seed):
         grad = np.ones_like(self.v.value)
         grad[self.v.value <= 0] = 0
-        self.v.backward(seed * grad)
+        return seed * grad
 
 
-class Exp(Operator):
-    def backward(self, seed):
-        self.v.backward(seed * np.exp(self.v.value))
+class Exp(UnaryOperator):
+    def _backward(self, seed):
+        return seed * np.exp(self.v.value)
 
 
-class Sqrt(Operator):
-    def backward(self, seed):
-        self.v.backward(seed / (2 * np.sqrt(self.v.value)))
+class Sqrt(UnaryOperator):
+    def _backward(self, seed):
+        return seed / (2 * np.sqrt(self.v.value))
 
 
-class Mean(Operator):
+class Mean(UnaryOperator):
     def __init__(self, v, dim):
         super().__init__(v)
         self.dim = dim
 
-    def backward(self, seed):
+    def _backward(self, seed):
         n = self.v.shape[self.dim] if self.dim is not None else self.v.value.size
-        grad = np.ones_like(self.v) / n
-        self.v.backward(seed * grad)
+        grad = np.ones_like(self.v.value) / n
+        return seed * grad
 
 
-class Mask(Operator):
+class Mask(UnaryOperator):
     def __init__(self, v, mask):
         super().__init__(v)
         self.mask = mask
 
-    def backward(self, seed):
-        self.v.backward(seed * self.mask)
+    def _backward(self, seed):
+        return seed * self.mask

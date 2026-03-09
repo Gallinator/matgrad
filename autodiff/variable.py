@@ -1,3 +1,4 @@
+import itertools
 import numpy as np
 from autodiff.grad_functions import Index, Add, Divide, Power, Mult, MatMul, Sub, Transpose, Negative
 
@@ -72,13 +73,29 @@ class Variable:
     def T(self):
         return transpose(self)
 
+    def accumulate(self, grad):
+        self.grad = grad if self.grad is None else self.grad + grad
+
+    def build_sorted_graph(self, v, visited, sorted_graph):
+        if v not in visited and v.requires_grad:
+            visited.add(v)
+            if v.fn is not None:
+                for v1 in v.fn.inputs:
+                    self.build_sorted_graph(v1, visited, sorted_graph)
+            sorted_graph.append(v)
+
     def backward(self, seed=None):
         if self.requires_grad:
             if seed is None:
-                seed = np.ones_like(self.value)
-            self.grad = seed if self.grad is None else self.grad + seed
-            if self.fn:
-                self.fn.backward(seed)
+                self.grad = np.ones_like(self.value)
+
+            visited = set()
+            sorted_graph = []
+            self.build_sorted_graph(self, visited, sorted_graph)
+
+            for v in sorted_graph[::-1]:
+                if v.fn is not None:
+                    v.fn.backward(v.grad)
 
 
 # Implement operations
