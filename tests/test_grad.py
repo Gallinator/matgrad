@@ -247,8 +247,8 @@ def test_layer_norm(a):
 
     w_t = tensor(w.value, requires_grad=True)
     b_t = tensor(b.value, requires_grad=True)
-
     a_t = tensor(a.value, requires_grad=True)
+
     af.layer_norm(a, w, b).backward()
     torch.layer_norm(a_t, norm_shape, w_t, b_t).sum().backward()
 
@@ -256,7 +256,7 @@ def test_layer_norm(a):
     assert_grad_close(w_t, w, 1e-15)
     assert_grad_close(b_t, b, 1e-15)
 
-    zero_grads(a)
+    zero_grads(a, w, b)
 
 
 @pytest.mark.parametrize('a', [variable.random(2, 3, 2, 4)])
