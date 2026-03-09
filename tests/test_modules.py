@@ -1,34 +1,13 @@
 import numpy as np
 import pytest
 import torch
-from torch import tensor, Tensor
+from torch import tensor
 from torch.nn.parameter import Parameter
 
 from autodiff import variable
-from autodiff.variable import Variable
 from nn.modules import attention, Linear, LayerNorm, Embedding, MultiHeadAttention, xavier_init
 from tests.torch_multi_head_attention import TorchMultiHeadAttention
-
-
-def assert_close(v: Variable, t: Tensor, atol=1e-15):
-    np.testing.assert_allclose(v.value, t.numpy(force=True), atol=atol)
-
-
-def assert_equal(v: Variable, t: Tensor):
-    np.testing.assert_array_equal(v.value, t.numpy(force=True))
-
-
-def assert_grad_equal(v: Variable, tensor: Tensor):
-    np.testing.assert_array_equal(v.grad, tensor.grad.numpy(force=True))
-
-
-def assert_grad_close(v: Variable, tensor: Tensor, atol=1e-15):
-    np.testing.assert_allclose(v.grad, tensor.grad.numpy(force=True), atol=atol)
-
-
-def zero_grads(*args):
-    for a in args:
-        a.grad = None
+from tests.utils import assert_close, assert_grad_close, zero_grads, assert_equal, assert_grad_equal
 
 
 @pytest.mark.parametrize('a', [variable.random(2, 3, 2, 4), variable.random(3, 5)])

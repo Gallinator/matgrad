@@ -7,6 +7,7 @@ import autodiff.functions as af
 
 from autodiff import variable
 from autodiff.variable import Variable, transpose
+from tests.utils import assert_close
 
 A_PARAMS = [variable.random(2, 3, 2, 4),
             variable.random(2, 4),
@@ -23,14 +24,6 @@ B_PARAMS = [variable.random(2, 3, 2, 4),
             variable.random(1, 1),
             variable.random(4),
             variable.random(1)]
-
-
-def assert_close(v: Variable, t: Tensor, atol=1e-15):
-    np.testing.assert_allclose(v.value, t.numpy(force=True), atol=atol)
-
-
-def assert_equal(v: Variable, t: Tensor):
-    np.testing.assert_array_equal(v.value, t.numpy(force=True))
 
 
 @pytest.mark.parametrize('a', [Variable(np.ones((2, 3, 2, 4)) * -1e-15)])
