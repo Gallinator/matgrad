@@ -1,14 +1,22 @@
 import numpy as np
-
 from autodiff.grad_functions import Index, Add, Divide, Power, Mult, MatMul, Sub, Transpose, Negative
+
+# Tracks all created nodes to traverse the graph in O(N) time
+_var_id = itertools.count()
 
 
 class Variable:
     def __init__(self, value: np.ndarray, fn=None, requires_grad=False):
+        global _var_id
+        self.id = next(_var_id)
+
         self.value = value
         self.requires_grad = requires_grad
         self.grad = None
         self.fn = fn
+
+    def __hash__(self):
+        return self.id.__hash__()
 
     # Allows to work with variables as if they were arrays
     def __getitem__(self, item):
@@ -53,7 +61,7 @@ class Variable:
 
     def __eq__(self, other):
         if isinstance(other, Variable):
-            return self.value == other.value
+            return self.id == other.id
         return False
 
     @property
