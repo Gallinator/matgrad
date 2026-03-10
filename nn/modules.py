@@ -1,6 +1,6 @@
 import math
 from math import sqrt
-from typing import Optional, override
+from typing import Optional
 
 import numpy as np
 from autodiff.functions import conv2d, relu, layer_norm, masked_fill, softmax, reshape
@@ -97,7 +97,6 @@ class Sequential(Module):
             y = m(y)
         return y
 
-    @override
     def parameters(self):
         params = []
         for m in self.modules:
