@@ -153,9 +153,10 @@ def test_transpose(a, dims):
 @pytest.mark.parametrize('a', [variable.random(2, 3, 2, 4)])
 @pytest.mark.parametrize('dim', [0, 1, 2, 3])
 def test_softmax(a, dim):
-    a = a * Variable(np.array([-10000.0]))
-    af.softmax(a, dim).backward()
-    a_torch = tensor(a.value, requires_grad=True)
+    a_scaled = a * Variable([-10000.0])
+    a_torch = tensor(a_scaled.value, requires_grad=True)
+
+    af.softmax(a_scaled, dim).backward()
     torch.softmax(a_torch, dim).sum().backward()
 
     assert_grad_close(a, a_torch, 1e-11)
