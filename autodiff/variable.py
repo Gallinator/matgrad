@@ -99,6 +99,10 @@ class Variable:
                 if v.fn is not None:
                     v.fn.backward(v.grad)
 
+            # Clear gradients of intermediate values
+            for v in sorted_graph:
+                if v.fn is not None:
+                    v.grad = None
 
 # Implement operations
 
