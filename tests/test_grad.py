@@ -33,8 +33,8 @@ def test_add(a, b):
     (a + b).backward()
     (a_torch + b_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
-    assert_grad_close(b,b_torch)
+    assert_grad_close(a, a_torch)
+    assert_grad_close(b, b_torch)
 
     zero_grads(a, b)
 
@@ -46,8 +46,8 @@ def test_mul(a, b):
     (a * b).backward()
     (a_torch * b_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
-    assert_grad_close(b,b_torch)
+    assert_grad_close(a, a_torch)
+    assert_grad_close(b, b_torch)
 
     zero_grads(a, b)
 
@@ -59,8 +59,8 @@ def test_sub(a, b):
     (a - b).backward()
     (a_torch - b_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
-    assert_grad_close(b,b_torch)
+    assert_grad_close(a, a_torch)
+    assert_grad_close(b, b_torch)
 
     zero_grads(a, b)
 
@@ -72,8 +72,8 @@ def test_truediv(a, b):
     (a / b).backward()
     (a_torch / b_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
-    assert_grad_close(b,b_torch)
+    assert_grad_close(a, a_torch)
+    assert_grad_close(b, b_torch)
 
     zero_grads(a, b)
 
@@ -85,7 +85,7 @@ def test_pow(a, e):
     (a ** e).backward()
     (a_torch ** e).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -101,8 +101,8 @@ def test_matmul(a, b):
     (a @ b).backward()
     (a_torch @ b_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
-    assert_grad_close(b,b_torch)
+    assert_grad_close(a, a_torch)
+    assert_grad_close(b, b_torch)
 
     zero_grads(a, b)
 
@@ -118,8 +118,8 @@ def test_matmul_col_vec(a, b):
     (a @ b).backward()
     (a_torch @ b_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
-    assert_grad_close(b,b_torch)
+    assert_grad_close(a, a_torch)
+    assert_grad_close(b, b_torch)
 
     zero_grads(a, b)
 
@@ -130,7 +130,7 @@ def test_neg(a):
     (-a).backward()
     (-a_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -145,7 +145,7 @@ def test_transpose(a, dims):
     else:
         a_torch.T.sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -199,7 +199,7 @@ def test_reshape(a, shape):
     a_torch = tensor(a.value, requires_grad=True)
     torch.reshape(a_torch, shape).sum().backward()
 
-    assert_grad_close(a,a_torch, 1e-15)
+    assert_grad_close(a, a_torch, 1e-15)
 
     zero_grads(a)
 
@@ -212,7 +212,7 @@ def test_masked_fill(a, mask):
     af.masked_fill(a, mask, 1e-15).backward()
     torch.masked_fill(a_torch, mask_torch, 1e-15).sum().backward()
 
-    assert_grad_close(a,a_torch, 1e-15)
+    assert_grad_close(a, a_torch, 1e-15)
 
 
 @pytest.mark.parametrize('a', [variable.random(2, 3, 2, 4)])
@@ -223,7 +223,7 @@ def test_dropout(a, train, p):
     dropout(a, p, train).backward()
     torch.dropout(a_torch, p, train).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -256,7 +256,7 @@ def test_mean(a, dim):
     a_torch = tensor(a.value, requires_grad=True)
     torch.mean(a_torch, dim, keepdim=True).sum().backward()
 
-    assert_grad_close(a,a_torch, 1e-15)
+    assert_grad_close(a, a_torch, 1e-15)
 
     zero_grads(a)
 
@@ -270,7 +270,7 @@ def test_cat(a, b, dim):
     b_torch = tensor(b.value, requires_grad=True)
     torch.cat([a_torch, b_torch], dim).sum().backward()
 
-    assert_grad_close(a,a_torch, 1e-15)
+    assert_grad_close(a, a_torch, 1e-15)
     assert_grad_close(b, b_torch, 1e-15)
 
     zero_grads(a, b)
@@ -285,7 +285,7 @@ def test_stack(a, b, dim):
     b_torch = tensor(b.value, requires_grad=True)
     torch.stack([a_torch, b_torch], dim).sum().backward()
 
-    assert_grad_close(a,a_torch, 1e-15)
+    assert_grad_close(a, a_torch, 1e-15)
     assert_grad_close(b, b_torch, 1e-15)
 
     zero_grads(a, b)
@@ -297,7 +297,7 @@ def test_sin(a):
     af.sin(a).backward()
     torch.sin(a_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -308,7 +308,7 @@ def test_cos(a):
     af.cos(a).backward()
     torch.cos(a_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -319,7 +319,7 @@ def test_sigmoid(a):
     af.sigmoid(a).backward()
     torch.sigmoid(a_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -330,7 +330,7 @@ def test_log(a):
     af.log(a).backward()
     torch.log(a_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -341,7 +341,7 @@ def test_relu(a):
     af.relu(a).backward()
     torch.relu(a_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -352,7 +352,7 @@ def test_exp(a):
     af.exp(a).backward()
     torch.exp(a_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -363,7 +363,7 @@ def test_sqrt(a):
     af.sqrt(a).backward()
     torch.sqrt(a_torch).sum().backward()
 
-    assert_grad_close(a,a_torch)
+    assert_grad_close(a, a_torch)
 
     zero_grads(a)
 
@@ -376,7 +376,7 @@ def test_sum(a, dim, keepdims):
     a_torch = tensor(a.value, requires_grad=True)
     torch.sum(a_torch, dim, keepdim=keepdims).sum().backward()
 
-    assert_grad_close(a,a_torch, 1e-15)
+    assert_grad_close(a, a_torch, 1e-15)
 
     zero_grads(a)
 
