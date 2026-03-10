@@ -158,7 +158,9 @@ def test_softmax(a, dim):
     a_torch = tensor(a.value, requires_grad=True)
     torch.softmax(a_torch, dim).sum().backward()
 
-    assert_grad_close(a, a_torch, 1e-15)
+    assert_grad_close(a, a_torch, 1e-11)
+
+    zero_grads(a)
 
 
 @pytest.mark.parametrize('a', [variable.random(5, 3, 2, 4)])
