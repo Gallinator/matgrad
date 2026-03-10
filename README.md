@@ -1,4 +1,7 @@
 # MatGrad
+
+[![Tests](https://github.com/Gallinator/matgrad/actions/workflows/tests.yml/badge.svg)](https://github.com/Gallinator/matgrad/actions/workflows/tests.yml)
+
 MatGrad is a simple matrix level automatic differentiation engine written in pure python using numpy only. Inspired by [micrograd](https://github.com/karpathy/micrograd) and tested against Pytorch.
 
 This is not a full autograd engine as it supports only a limited number of operators.
