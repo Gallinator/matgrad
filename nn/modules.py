@@ -30,7 +30,7 @@ def normal_init(size):
 
 
 def attention(q: Variable, k: Variable, v: Variable, mask=None) -> Variable:
-    d_k = Variable(np.array(sqrt(q.shape[-1])))
+    d_k = Variable([sqrt(q.shape[-1])])
     y = q @ transpose(k, -2, -1) / d_k
     if mask is not None:
         y = masked_fill(y, mask, -10000)
@@ -134,7 +134,7 @@ class Convolution2d(Module):
         super().__init__()
         k_size = (in_channels,) + kernel_size
         self.kernels = [kaiming_init(k_size).value for _ in range(out_channels)]
-        self.kernels = Variable(np.array(self.kernels), requires_grad=True)
+        self.kernels = Variable(self.kernels, requires_grad=True)
         self.b = kaiming_init((out_channels, 1, 1))
 
     def forward(self, x):
