@@ -7,7 +7,16 @@ _var_id = itertools.count()
 
 
 class Variable:
-    def __init__(self, value: np.ndarray, fn=None, requires_grad=False):
+    """
+    Base wrapper variable class supporting automatic differentiation. This class uses a unique global id `_var_id` to identify the variable in the computational graph.
+
+    Args:
+        value: the data. Must be at least 1D compatible with `numpy.array()`.
+        fn: the autograd function corresponding to the operation which generated this value.
+        requires_grad: `True` if this variable has to be differentiated in the backward pass.
+    """
+
+    def __init__(self, value, fn=None, requires_grad=False):
         global _var_id
         self.id = next(_var_id)
 
@@ -78,12 +87,12 @@ class Variable:
         if self.requires_grad:
             self.grad = grad if self.grad is None else self.grad + grad
 
-    def build_sorted_graph(self, v, visited, sorted_graph):
+    def _build_sorted_graph(self, v, visited, sorted_graph):
         if v not in visited and v.requires_grad:
             visited.add(v)
             if v.fn is not None:
                 for v1 in v.fn.inputs:
-                    self.build_sorted_graph(v1, visited, sorted_graph)
+                    self._build_sorted_graph(v1, visited, sorted_graph)
             sorted_graph.append(v)
 
     def backward(self, seed=None):
@@ -93,7 +102,7 @@ class Variable:
 
             visited = set()
             sorted_graph = []
-            self.build_sorted_graph(self, visited, sorted_graph)
+            self._build_sorted_graph(self, visited, sorted_graph)
 
             for v in sorted_graph[::-1]:
                 if v.fn is not None:
@@ -104,7 +113,6 @@ class Variable:
                 if v.fn is not None:
                     v.grad = None
 
-# Implement operations
 
 def any_requires_grad(*variables):
     return any([v.requires_grad for v in variables])
