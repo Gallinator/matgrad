@@ -11,7 +11,7 @@ class Variable:
         global _var_id
         self.id = next(_var_id)
 
-        self.value = value
+        self.value = np.array(value)
         self.requires_grad = requires_grad
         self.grad = None
         self.fn = fn
