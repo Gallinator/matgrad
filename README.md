@@ -42,7 +42,7 @@ print(b.grad)  # None
 ```
 
 ### Examples
-The `examples` folder contains some example on how to use the engine to train NN models on synthetic data.
+The `examples` folder contains some examples on how to use the engine to train NN models on synthetic data.
 
 |Example|Model|Task|
 |-------|-----|----|
@@ -107,7 +107,7 @@ The engine is based on reverse accumulation and uses a computational graph to de
 
 The forward pass is based on the `Variable` class which stores the data, gradient function of the operation from which it was generated and a unique id to identify it inside the computational graph.
 
-Each operation returns a `Variable` and assigns its gradient function upon creation.
+Each operation returns a `Variable` and sets its gradient function upon creation.
 
 Each gradient function stores the inputs and additional data such as the dimensions and masks.
 
@@ -143,7 +143,7 @@ Therefore in the backward pass, if the gradient from the previous function and t
 
 If the number of dimensions is not the same, the gradient is accumulated along the excess dimensions starting from the left of the dimensions.
 
-Then if the result and variable have different shapes and the same number of dimensions, the resulting gradient is accumulated along the dimensions which are not equal (accumulation).
+Then if the result and variable have different shapes and the same number of dimensions, the resulting gradient is accumulated along the dimensions which are not equal.
 
 #### Tests
-All the gradient functions and modules are tested against pytorch implementations. The forward pass of the most important functions and modules is also tested.
+All the gradient functions and modules are tested against pytorch implementations. The forward pass of the most important functions and modules are also tested.
