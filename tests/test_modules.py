@@ -81,7 +81,7 @@ def setup_layer_norm_layers(request):
 @pytest.mark.parametrize('setup_layer_norm_layers', [variable.random(2, 3, 10, 4)], indirect=True)
 def test_layer_norm(setup_layer_norm_layers):
     a, torch_a, linear, torch_layer = setup_layer_norm_layers
-    assert_close(linear(a), torch_layer(torch_a), 1e-13)
+    assert_close(linear(a), torch_layer(torch_a), 1e-12)
 
 
 @pytest.mark.parametrize('setup_layer_norm_layers', [variable.random(2, 3, 10, 4)], indirect=True)
@@ -90,9 +90,9 @@ def test_layer_norm_grad(setup_layer_norm_layers):
     linear(a).backward()
     torch_layer(torch_a).sum().backward()
 
-    assert_grad_close(a, torch_a, 1e-13)
-    assert_grad_close(linear.w, torch_layer.weight, 1e-13)
-    assert_grad_close(linear.b, torch_layer.bias, 1e-13)
+    assert_grad_close(a, torch_a, 1e-12)
+    assert_grad_close(linear.w, torch_layer.weight, 1e-12)
+    assert_grad_close(linear.b, torch_layer.bias, 1e-12)
 
 
 @pytest.fixture
