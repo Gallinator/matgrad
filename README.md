@@ -118,8 +118,8 @@ Each gradient function stores the inputs and additional data such as the dimensi
 
 When calling the backward function the following happens:
 - The computational graph which starts from the `Variable` is built as a list using topological sort
-- the `backward()` function is called on each variable's gradient function
-- the function accumulates the gradient in the intermediate or leaf variables
+- The `backward()` function is called on each variable's gradient function
+- The function accumulates the gradient in the intermediate or leaf variables
 - The intermediate gradients are cleared
 
 At the end of the process the gradient of each leaf variable is available in the `.grad` attribute.
