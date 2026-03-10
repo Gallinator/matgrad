@@ -1,4 +1,4 @@
-name: Pytorch tests
+name: Tests
 
 on: [push, workflow_dispatch, pull_request]
 
