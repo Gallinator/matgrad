@@ -74,7 +74,9 @@ class Variable:
         return transpose(self)
 
     def accumulate(self, grad):
-        self.grad = grad if self.grad is None else self.grad + grad
+        # This check is done here instead of inside the grad functions
+        if self.requires_grad:
+            self.grad = grad if self.grad is None else self.grad + grad
 
     def build_sorted_graph(self, v, visited, sorted_graph):
         if v not in visited and v.requires_grad:
